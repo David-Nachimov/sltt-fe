@@ -1,6 +1,5 @@
 .video-container {
   background-color: #e5e5e5;
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -37,7 +36,7 @@
 }
 
 .sub-title {
-  font-size: 2rem;
+  font-size: 1.5em;
 }
 
 .main-container {
@@ -51,7 +50,7 @@
 }
 
 .main-title {
-  font-size: calc(10px + 6vmin);
+  font-size: 3em;
 }
 
 .second-title {

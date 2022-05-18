@@ -147,14 +147,14 @@ const App = () => {
             <div className="sub-title">You do the sign, we do the text</div>
           </div>
         </div>
+        {prediction.class !== -1 && <div className="player-translation">We think we said: {prediction.class} with {(prediction.probability * 100).toFixed(2)}%</div>}
         <div className="player-wraper">
           <div className="container">
             <video className="input_video"></video>
-            <canvas className="output_canvas" width="1580px" height="720px"></canvas>
+            <canvas className="output_canvas" width="640px" height="480px"></canvas>
           </div>
           <div className="control-panel"></div>
         </div>
-        <div className="player-translation">We think we said: {prediction.class} with {prediction.probability}%</div>
       </div>
     )
   }
