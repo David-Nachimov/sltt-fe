@@ -6,12 +6,57 @@ import * as drawingUtils from '@mediapipe/drawing_utils'
 import * as controls from '@mediapipe/control_utils'
 const logo = require('./icons/logo.jpg')
 
+const PORT = 3006
+const MODEL_NAME = 'saved_model_new_85'
+
+const DEFAULT_PREDICTION = { class: -1, probability: 1 }
+
+const MAP = {
+  '-1': 'Cant translate try something else',
+  0: '0',
+  1: '1',
+  2: '2',
+  3: '3',
+  4: '4',
+  5: '5',
+  6: '6',
+  7: '7',
+  8: '8',
+  9: '9',
+  10: 'A',
+  11: 'B',
+  12: 'C',
+  13: 'D',
+  14: 'E',
+  15: 'F',
+  16: 'G',
+  17: 'H',
+  18: 'I',
+  19: 'J',
+  20: 'K',
+  21: 'L',
+  22: 'M',
+  23: 'N',
+  24: 'O',
+  25: 'P',
+  26: 'Q',
+  27: 'R',
+  28: 'S',
+  29: 'T',
+  30: 'U',
+  31: 'V',
+  32: 'W',
+  33: 'X',
+  34: 'Y',
+  35: 'Z',
+}
+
 const App = () => {
   const [isHomePage, setIsHomePage] = useState(false)
-  const [prediction, setPrediction] = useState({ class: -1, probability: 0 })
+  const [prediction, setPrediction] = useState(DEFAULT_PREDICTION)
 
   const runApp = async () => {
-    const net = await tf.loadLayersModel('http://localhost:3006/saved_model_new_3d/model.json')
+    const net = await tf.loadLayersModel(`http://localhost:${PORT}/${MODEL_NAME}/model.json`)
     detectHands(net)
   }
 
@@ -65,7 +110,7 @@ const App = () => {
         // fit. The landmarks just merge, but the connections need to be offset.
         const landmarks = results.multiHandWorldLandmarks
           .reduce((prev, current) => [...prev, ...current], [])
-          .flatMap((landmark) => [landmark.x, landmark.y, landmark.z])
+          .flatMap((landmark) => [landmark.x, landmark.y])
 
         const colors = []
         let connections: mpHands.LandmarkConnectionArray = []
@@ -83,7 +128,9 @@ const App = () => {
           })
         }
 
-        if (landmarks.length === 63) {
+        // console.log(landmarks.length)
+
+        if (landmarks.length === 42) {
           // predict hand signature
           const landmarksTensor = tf.tensor(landmarks).expandDims()
           const arr = net.predict(landmarksTensor) as tf.Tensor
@@ -91,11 +138,13 @@ const App = () => {
           const prediction = getMaxPrediction(pred)
           const THRESHOLD = 0.9
           if (prediction.probability > THRESHOLD) {
-            console.log(prediction.class, prediction.probability)
+            console.log('-----------------------')
+            console.log(MAP[prediction.class])
+            console.log({ prediction })
+            console.log('-----------------------')
             setPrediction(prediction)
           }
         }
-        // grid.updateLandmarks(landmarks, connections, colors);
       }
     }
 
@@ -147,13 +196,22 @@ const App = () => {
             <div className="sub-title">You do the sign, we do the text</div>
           </div>
         </div>
-        {prediction.class !== -1 && <div className="player-translation">We think we said: {prediction.class} with {(prediction.probability * 100).toFixed(2)}%</div>}
+        {prediction.class !== -1 ? (
+          <div className="player-translation">
+            We think we said: {MAP[prediction.class]} with {(prediction.probability * 100).toFixed(2)}%
+          </div>
+        ) : (
+          <div className="player-translation">
+            {MAP[prediction.class]}
+          </div>
+        )}
         <div className="player-wraper">
           <div className="container">
             <video className="input_video"></video>
             <canvas className="output_canvas" width="640px" height="480px"></canvas>
           </div>
           <div className="control-panel"></div>
+          <img className="legand" src="/alphabets-and-numbers-legand.png" alt="LEGAND" />
         </div>
       </div>
     )
